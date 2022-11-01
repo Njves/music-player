@@ -8,13 +8,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
+public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
         Parent root = FXMLLoader.load(getClass().getResource("doca.fxml"));
 
         Scene scene = new Scene(root, 800, 600);
-
         stage.setTitle("FXML Welcome");
         stage.setScene(scene);
         stage.show();
