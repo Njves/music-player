@@ -81,13 +81,7 @@ public class Track {
 
     @Override
     public String toString() {
-        return "Track{" +
-                "artist='" + artist + '\'' +
-                ", title='" + title + '\'' +
-                ", length=" + length +
-                ", coverLink='" + coverLink + '\'' +
-                ", fileLink='" + fileLink + '\'' +
-                '}';
+        return this.artist + " - " + this.title;
     }
 
 

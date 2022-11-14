@@ -1,22 +1,46 @@
+/**
+ * Модуль содержащий реализацию кольцевого связанного списка
+ */
 package com.njves.demo.list;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
+/**
+ * Представляет кольцевой двусвязанный список
+ * @param <T>
+ */
 public class LinkedList<T> implements Iterable<T> {
-
+    /**
+     * Первый элемент в списке
+     */
     protected LinkedListNode<T> firstItem;
+
+    /**
+     * Длина списка
+     */
     protected int length;
 
+    /**
+     * Конструктор без параметров
+     */
     public LinkedList() {
 
     }
 
+    /**
+     * Конструктор с параметром первого элемента
+     * добавляет элемент и делает его первым в списке
+     * @param firstItem первый элемент списка
+     */
     public LinkedList(LinkedListNode<T> firstItem) {
         appendFirst(firstItem);
     }
 
+    /**
+     * Добавляет начальный элемент в список
+     * @param firstNode нода помещяемая в начало
+     */
     private void appendFirst(LinkedListNode<T> firstNode) {
         this.firstItem = firstNode;
         firstItem.setNextItem(firstItem);
@@ -24,16 +48,28 @@ public class LinkedList<T> implements Iterable<T> {
         length++;
     }
 
+    /**
+     * Проверяет, является ли список пустым
+     * @return являетяс ли список пустым
+     */
     private boolean isEmpty() {
         return firstItem == null;
     }
 
+    /**
+     * Провряет, является ли список пустым
+     * и если является выкидывает исключение
+     */
     private void checkIsEmpty() {
         if(isEmpty()) {
             throw new RuntimeException("Список пуст");
         }
     }
 
+    /**
+     * Добавляет элемент в начало списка
+     * @param data элемент добавляемый в начало списка
+     */
     public void appendLeft(T data) {
         LinkedListNode<T> newNode = new LinkedListNode<>(data);
         if(isEmpty()) {
@@ -48,6 +84,10 @@ public class LinkedList<T> implements Iterable<T> {
         length++;
     }
 
+    /**
+     * Добавляет элемент в конец списка
+     * @param data элемент добавляемый в конец списка
+     */
     public void appendRight(T data) {
         LinkedListNode<T> newNode = new LinkedListNode<>(data);
         if(isEmpty()) {
@@ -62,11 +102,19 @@ public class LinkedList<T> implements Iterable<T> {
         length++;
     }
 
+    /**
+     * Алиас для добавления элемента в конец
+     * @param data добавляемый объект
+     */
     public void append(T data) {
         appendRight(data);
     }
 
-
+    /**
+     * Добавляет элемент после передаваемого элемента списка
+     * @param previous элемент после которого будет вставлен элемент
+     * @param data добавляемый объект
+     */
     public void insert(LinkedListNode<T> previous, T data) {
         if(!isContains(previous.getData())) {
             throw new RuntimeException(new ValueError("На ноды нет ссылки в списке, или нода пуста"));
@@ -79,10 +127,19 @@ public class LinkedList<T> implements Iterable<T> {
         length++;
     }
 
+    /**
+     * Возвращает длину списка
+     * @return длина списка
+     */
     public int size() {
         return length;
     }
 
+    /**
+     * Возвращает ноду по индексу
+     * @param index индекс
+     * @return нода
+     */
     public LinkedListNode<T> get(int index) {
         if(index == 0) return firstItem;
         int counter = 0;
@@ -97,7 +154,29 @@ public class LinkedList<T> implements Iterable<T> {
         throw new NullPointerException("Такой ноды не существует");
     }
 
+    /**
+     * Возвращает ноду по объекту
+     * @param object объект
+     * @return нода
+     */
+    public LinkedListNode<T> get(T object) {
+        if(object == null) {
+            throw new NullPointerException("Объект является null");
+        }
+        for (int i = 0; i < length; i++) {
+            LinkedListNode<T> node = get(i);
+            if(node.getData().equals(object)) {
+                return node;
+            }
+        }
+        throw new RuntimeException(new NullPointerException("Объект не найден"));
+    }
 
+    /**
+     * Провреяет, есть ли элемент в списке
+     * @param value элемент
+     * @return есть ли элемент в списке
+     */
     public boolean isContains(T value) {
         for (T data: this) {
             if(data.equals(value)) {
@@ -107,12 +186,22 @@ public class LinkedList<T> implements Iterable<T> {
         return false;
     }
 
+    /**
+     * Проверяет есть ли элемент в списке, и если его нет
+     * выкидывает исключение
+     * @param value объект
+     */
     private void checkIsContains(T value) {
         if(!isContains(value)) {
             throw new RuntimeException(new ValueError("Такого элемента не существует"));
         }
     }
 
+    /**
+     * Возвращает ноду по объекту
+     * @param data объект
+     * @return найденная нода
+     */
     private LinkedListNode<T> getNodeByData(T data) {
         for (int i = 0; i < size(); i++) {
             LinkedListNode<T> node = get(i);
@@ -130,11 +219,19 @@ public class LinkedList<T> implements Iterable<T> {
         }
     }
 
+    /**
+     * Возвращает итератор перевернутого списка
+     * @return итератор reversed списка
+     */
     public Iterator<T> reversed() {
         return new ReversedLinkedListIterator();
     }
 
 
+    /**
+     * Удаляет элемент из списка по объекту
+     * @param value объект
+     */
     public void remove(T value) {
         checkIsEmpty();
         checkIsContains(value);
@@ -152,6 +249,10 @@ public class LinkedList<T> implements Iterable<T> {
         length--;
     }
 
+    /**
+     * Возвращает последний элемент списка
+     * @return первый элемент списка
+     */
     public LinkedListNode<T> last() {
         checkIsEmpty();
         LinkedListNode<T> nextItem = firstItem;
@@ -161,6 +262,45 @@ public class LinkedList<T> implements Iterable<T> {
         return nextItem;
     }
 
+    /**
+     * Меняет две ноды местами
+     * @param start первая нода
+     * @param end вторая нода
+     */
+    public void swap(LinkedListNode<T> start, LinkedListNode<T> end) {
+        if(start == null || end == null) {
+            throw new NullPointerException("Недопустимая ссылка");
+        }
+        if(start.equals(end)) {
+            return;
+        }
+        // TODO: Если что добавить проверку на принадлежность ссылки
+
+        LinkedListNode<T> temp = start.getNextItem();
+        start.setNextItem(end.getNextItem());
+        end.setNextItem(temp);
+
+        start.getNextItem().setPreviousItem(start);
+        end.getNextItem().setPreviousItem(end);
+
+
+        temp = start.getPreviousItem();
+        start.setPreviousItem(end.getPreviousItem());
+        end.setPreviousItem(temp);
+
+        start.getPreviousItem().setNextItem(start);
+        end.getPreviousItem().setNextItem(end);
+        if(start == firstItem) {
+            firstItem = end;
+        } else if (end == firstItem) {
+            firstItem = start;
+        }
+    }
+
+    /**
+     * Преобразует список к массиву
+     * @return массив
+     */
     public T[] toArray() {
         Object[] array = new Object[length];
         LinkedListIterator iterator = new LinkedListIterator();
@@ -173,8 +313,15 @@ public class LinkedList<T> implements Iterable<T> {
         return (T[]) array;
     }
 
+    /**
+     * Возвращает строкове представление элемента
+     * @return строка
+     */
     @Override
     public String toString() {
+        if(firstItem == null) {
+            return "{}";
+        }
         StringBuilder linkedListString = new StringBuilder();
         LinkedListNode<T> currentNode = firstItem;
         linkedListString.append("{ previous: ").append(currentNode.getPreviousItem()).append(", current: ").append(currentNode).append(" next: ").append(currentNode.getNextItem()).append("\n");
@@ -187,6 +334,9 @@ public class LinkedList<T> implements Iterable<T> {
         return linkedListString.toString();
     }
 
+    /**
+     * Итератор списка
+     */
     class LinkedListIterator implements Iterator<T> {
         LinkedListNode<T> lastReturned;
         private LinkedListNode<T> next;
@@ -211,6 +361,9 @@ public class LinkedList<T> implements Iterable<T> {
 
     }
 
+    /**
+     * Итератор перевернутого списка
+     */
     class ReversedLinkedListIterator implements Iterator<T> {
         LinkedListNode<T> lastReturned;
         private LinkedListNode<T> next;
@@ -233,11 +386,21 @@ public class LinkedList<T> implements Iterable<T> {
             return lastReturned.getData();
         }
     }
+
+    /**
+     * Возвращает итератор
+     * @return итератор
+     */
     @Override
     public Iterator<T> iterator() {
         return new LinkedListIterator();
     }
 
+    /**
+     * Сравнивает два объекта и провряет равны ли они
+     * @param o сравниваемый объект
+     * @return равны ли объекты
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -246,6 +409,14 @@ public class LinkedList<T> implements Iterable<T> {
         return length == that.length && Objects.equals(firstItem, that.firstItem);
     }
 
+    public LinkedListNode<T> getFirstItem() {
+        return firstItem;
+    }
+
+    /**
+     * Возвращает хэш код объекта
+     * @return хэш код
+     */
     @Override
     public int hashCode() {
         return Objects.hash(firstItem, length);

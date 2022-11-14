@@ -3,6 +3,7 @@ package com.njves.demo;
 import com.njves.demo.list.LinkedList;
 import com.njves.demo.model.Track;
 import com.njves.demo.playlist.Playlist;
+import com.njves.demo.playlist.PlaylistStorage;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -59,7 +60,7 @@ public class PlayerController implements Initializable {
     private boolean isPlaying = false;
     private Media media;
     private MediaPlayer mediaPlayer;
-
+    private boolean clickedFlag = false;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initPlaylist();
@@ -83,31 +84,28 @@ public class PlayerController implements Initializable {
             isPlaying = !isPlaying;
         });
         backButton.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("plview.fxml"));
-                Scene scene = new Scene(root, 800, 600);
-                Stage stage = new Stage();
-
-                stage.setTitle("FXML Welcome");
-                stage.setScene(scene);
-                stage.show();
-                borderPane.getScene().getWindow().hide();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            openPlaylistViewScreen();
         });
     }
 
     private void initPlaylist() {
-        playlist = new Playlist();
-        for (Track track : tracks) {
-            playlist.append(track);
-        }
-        playlist.playAll(tracks.get(0).getData());
+        getEnvironmentPlaylist();
         media = new Media(new File(playlist.current().getFileLink()).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
-        playlist.playAll(AudioExtractor.getInstance().getTracks().get(0).getData());
+        if(PlaylistStorage.getInstance().getCurrentPlaylist() == null) {
+            playlist.playAll(tracks.get(2).getData());
+        }
         update();
+    }
+
+    private void getEnvironmentPlaylist() {
+        playlist = PlaylistStorage.getInstance().getCurrentPlaylist();
+        if(playlist == null) {
+            playlist = new Playlist();
+            for(Track track : tracks) {
+                playlist.append(track);
+            }
+        }
     }
 
     private void update() {
@@ -115,28 +113,62 @@ public class PlayerController implements Initializable {
         media = new Media(new File(playlist.current().getFileLink()).toURI().toString());
         mediaPlayer.stop();
         mediaPlayer = new MediaPlayer(media);
+
         Image coverImage = new Image(track.getCoverLink());
         coverImageView.setImage(coverImage);
         musicTitleText.setText(track.getTitle());
         isPlaying = false;
         musicLengthSlider.setValue(0);
-        mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
-            @Override
-            public void changed(ObservableValue<? extends Duration> observableValue, Duration duration, Duration t1) {
-                musicLengthSlider.setValue(t1.toMillis() / mediaPlayer.getTotalDuration().toMillis() * 100);
 
-            }
-        });
-
-        musicLengthSlider.setOnMouseClicked(e -> {
-
-            if(e.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                Duration duration = mediaPlayer.getMedia().getDuration();
-                mediaPlayer.seek(duration.multiply(musicLengthSlider.getValue()/100.0));
-
-            }
-        });
+        setTimePropertyListener();
+        setOnDragDetectedListener();
+        setOnSliderClickListener();
+        setOnEndOfMediaListener();
         System.out.println(track);
+    }
 
+    private void setTimePropertyListener() {
+        mediaPlayer.currentTimeProperty().addListener((observableValue, duration, t1) -> {
+            if(!clickedFlag)
+                musicLengthSlider.setValue(t1.toMillis() / mediaPlayer.getTotalDuration().toMillis() * 100);
+        });
+    }
+
+    private void setOnDragDetectedListener() {
+        musicLengthSlider.setOnDragDetected(e -> {
+            clickedFlag = true;
+        });
+    }
+
+    private void setOnSliderClickListener() {
+        musicLengthSlider.setOnMousePressed(e -> {
+            clickedFlag = true;
+            Duration duration = mediaPlayer.getMedia().getDuration();
+            mediaPlayer.seek(duration.multiply(musicLengthSlider.getValue()/100.0));
+        });
+        musicLengthSlider.setOnMouseReleased(e -> clickedFlag = false);
+    }
+
+    private void setOnEndOfMediaListener() {
+        mediaPlayer.setOnEndOfMedia(() -> {
+            playlist.nextTrack();
+            update();
+        });
+    }
+
+    private void openPlaylistViewScreen() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource(MainApplication.VIEW_FILE_PLAYLIST));
+            Scene scene = new Scene(root, 800, 600);
+            Stage stage = new Stage();
+
+            stage.setTitle("Выбор плейлиста");
+            stage.setScene(scene);
+            stage.show();
+            mediaPlayer.stop();
+            borderPane.getScene().getWindow().hide();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
