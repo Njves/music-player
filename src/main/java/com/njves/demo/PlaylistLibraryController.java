@@ -1,6 +1,7 @@
 package com.njves.demo;
 
 import com.njves.demo.list.LinkedList;
+import com.njves.demo.list.LinkedListNode;
 import com.njves.demo.model.Track;
 import com.njves.demo.playlist.Playlist;
 import com.njves.demo.playlist.PlaylistStorage;
@@ -12,13 +13,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ResourceBundle;
 
 public class PlaylistLibraryController implements Initializable {
@@ -41,7 +48,9 @@ public class PlaylistLibraryController implements Initializable {
     public Button buttonToDown;
     @FXML
     public Button buttonRemove;
-    private final LinkedList<Track> libraryList = AudioExtractor.getInstance().getTracks();
+    private LinkedList<Track> libraryList = AudioExtractor.getInstance().getTracks();
+    @FXML
+    public Button buttonDownload;
 
     private Playlist playlist;
 
@@ -76,6 +85,10 @@ public class PlaylistLibraryController implements Initializable {
         buttonToDown.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             moveToDown();
         });
+
+        buttonDownload.setOnMouseClicked(event -> {
+            addFileToLibrary();
+        });
     }
 
     private void initializePlaylistListView() {
@@ -86,6 +99,7 @@ public class PlaylistLibraryController implements Initializable {
     }
 
     private void initializeLibraryListView() {
+        libraryList = AudioExtractor.getInstance().getTracks();
         for(Track track : libraryList) {
             listViewLibrary.getItems().add(track);
         }
@@ -99,13 +113,28 @@ public class PlaylistLibraryController implements Initializable {
             listViewPlaylist.getItems().add(track);
             playlist.append(track);
         }
+        listViewPlaylist.getItems().clear();
+        listViewLibrary.getItems().clear();
+        initializeLibraryListView();
+        initializePlaylistListView();
     }
 
     private void removeTrackFromPlaylist() {
+
+        Track[] deletedTracks = new Track[listViewPlaylist.getSelectionModel().getSelectedItems().size()];
+        int counter = 0;
         for (Track track : listViewPlaylist.getSelectionModel().getSelectedItems()) {
-            listViewPlaylist.getItems().remove(track);
+            deletedTracks[counter] = track;
             playlist.remove(track);
+            counter++;
         }
+        for(Track track : deletedTracks) {
+            listViewPlaylist.getItems().remove(track);
+        }
+        listViewPlaylist.getItems().clear();
+        listViewLibrary.getItems().clear();
+        initializeLibraryListView();
+        initializePlaylistListView();
     }
 
     private boolean isTrackInList(Track track) {
@@ -125,21 +154,32 @@ public class PlaylistLibraryController implements Initializable {
     }
 
     private void moveToTop() {
-        int match = listViewPlaylist.getItems().indexOf(listViewPlaylist.getSelectionModel().getSelectedItems().get(0));
+        if(listViewPlaylist.getItems().size() == 0 || listViewPlaylist.getSelectionModel().getSelectedItems().size() == 0) {
+            return;
+        }
 
-        playlist.swap(playlist.get(listViewPlaylist.getItems().get(match)),
-                        playlist.get(listViewPlaylist.getItems().get(match - 1)));
+        int match = listViewPlaylist.getItems().indexOf(listViewPlaylist.getSelectionModel().getSelectedItems().get(0));
+        LinkedListNode<Track> track = playlist.get(listViewPlaylist.getItems().get(match));
+        if(match == 0) {
+            match = listViewPlaylist.getItems().size();
+        }
+        playlist.swap(track,
+                playlist.get(listViewPlaylist.getItems().get(match-1)));
 
         initializePlaylistListView();
 
     }
 
     private void moveToDown() {
-        int match = listViewPlaylist.getItems().indexOf(listViewPlaylist.getSelectionModel().getSelectedItems().get(0));
-        if(match >= playlist.size()) {
+        if(listViewPlaylist.getItems().size() == 0 || listViewPlaylist.getSelectionModel().getSelectedItems().size() == 0) {
             return;
         }
-        playlist.swap(playlist.get(listViewPlaylist.getItems().get(match)),
+        int match = listViewPlaylist.getItems().indexOf(listViewPlaylist.getSelectionModel().getSelectedItems().get(0));
+        LinkedListNode<Track> track = playlist.get(listViewPlaylist.getItems().get(match));
+        if(match == listViewPlaylist.getItems().size() - 1) {
+            match = -1;
+        }
+        playlist.swap(track,
                 playlist.get(listViewPlaylist.getItems().get(match + 1)));
         initializePlaylistListView();
     }
@@ -157,6 +197,28 @@ public class PlaylistLibraryController implements Initializable {
         stage.setScene(scene);
         stage.show();
         hide();
+    }
+
+    private void addFileToLibrary() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Загрузить музыку");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("mp3", "*.mp3"),
+                new FileChooser.ExtensionFilter("waw", "*.waw"));
+        File file = chooser.showOpenDialog(parent.getScene().getWindow());
+        if(file == null) {
+            return;
+        }
+        try {
+            System.out.println(file.getName());
+            Files.copy(file.toPath(),
+                    new File(AudioExtractor.getInstance().LIBRARY_PATH, file.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        listViewLibrary.getItems().clear();
+        initializeLibraryListView();
+
     }
 
     private void hide() {

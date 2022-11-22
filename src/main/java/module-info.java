@@ -14,7 +14,6 @@ module com.njves.demo {
 
 
     exports com.njves.demo;
-    exports com.njves.demo.test;
     exports com.njves.demo.model;
     exports com.njves.demo.playlist;
     exports com.njves.demo.list;

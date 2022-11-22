@@ -60,14 +60,25 @@ public class PlaylistViewController implements Initializable {
     }
 
     private void removePlaylist() {
-        for(Playlist playlist : listView.getSelectionModel().getSelectedItems()) {
+        Playlist[] playlists = new Playlist[listView.getSelectionModel().getSelectedItems().size()];
+        int counter = 0;
+        for (Playlist playlist : listView.getSelectionModel().getSelectedItems()) {
             storage.removePlaylist(playlist);
-            listView.getItems().remove(playlist);
+            playlists[counter] = playlist;
+            counter++;
+        }
+
+        for (int i = 0; i < playlists.length; i++) {
+            listView.getItems().remove(playlists[i]);
         }
     }
 
     private void openWindowLibrary() {
-        passPlaylist();
+        if(listView.getSelectionModel().getSelectedItems().size() == 0) {
+            return;
+        }
+        Playlist selectedPlaylist = listView.getSelectionModel().getSelectedItems().get(0);
+        storage.setCurrentPlaylist(selectedPlaylist);
         Parent root = null;
         try {
             root = FXMLLoader.load(getClass().getResource(MainApplication.VIEW_FILE_LIBRARY_PLAYLIST));
@@ -83,7 +94,15 @@ public class PlaylistViewController implements Initializable {
     }
 
     private void openWindowPlayer() {
-        passPlaylist();
+        if(listView.getSelectionModel().getSelectedItems().size() == 0) {
+            return;
+        }
+        Playlist selectedPlaylist = listView.getSelectionModel().getSelectedItems().get(0);
+        if(selectedPlaylist.size() == 0) {
+            return;
+        }
+        storage.setCurrentPlaylist(selectedPlaylist);
+
         Parent root = null;
         try {
             root = FXMLLoader.load(getClass().getResource(MainApplication.VIEW_FILE_PLAYER));
@@ -100,11 +119,5 @@ public class PlaylistViewController implements Initializable {
 
     private void hide() {
         hBox.getScene().getWindow().hide();
-    }
-
-    private void passPlaylist() {
-        Playlist selectedPlaylist = listView.getSelectionModel().getSelectedItems().get(0);
-
-        storage.setCurrentPlaylist(listView.getSelectionModel().getSelectedItems().get(0));
     }
 }

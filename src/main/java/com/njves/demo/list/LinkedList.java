@@ -111,12 +111,26 @@ public class LinkedList<T> implements Iterable<T> {
     }
 
     /**
+     * Проверяет принадлежит ли узел, к списку
+     * @param node узел
+     * @return принадлежит ли узел к списку
+     */
+    private boolean isNodeFromThisList(LinkedListNode<T> node) {
+        for (int i = 0; i < length; i++) {
+            if(node.equals(get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Добавляет элемент после передаваемого элемента списка
      * @param previous элемент после которого будет вставлен элемент
      * @param data добавляемый объект
      */
     public void insert(LinkedListNode<T> previous, T data) {
-        if(!isContains(previous.getData())) {
+        if(!isNodeFromThisList(previous) || previous == null) {
             throw new RuntimeException(new ValueError("На ноды нет ссылки в списке, или нода пуста"));
         }
         LinkedListNode<T> newNode = new LinkedListNode<>(data);
@@ -151,7 +165,7 @@ public class LinkedList<T> implements Iterable<T> {
                 return currentNode;
             }
         }
-        throw new NullPointerException("Такой ноды не существует");
+        throw new ArrayIndexOutOfBoundsException("Такой ноды не существует");
     }
 
     /**
@@ -296,7 +310,6 @@ public class LinkedList<T> implements Iterable<T> {
             firstItem = start;
         }
     }
-
     /**
      * Преобразует список к массиву
      * @return массив
@@ -338,19 +351,37 @@ public class LinkedList<T> implements Iterable<T> {
      * Итератор списка
      */
     class LinkedListIterator implements Iterator<T> {
-        LinkedListNode<T> lastReturned;
+        private LinkedListNode<T> lastReturned;
+        /**
+         * Объект узла хранящий текущую позицию
+         */
         private LinkedListNode<T> next;
+
+        /**
+         * Счетчик текущего элемента
+         */
         private int counter = 0;
+
+        /**
+         * Конструктор итератора
+         */
         public LinkedListIterator() {
             this.next = firstItem;
         }
 
-
+        /**
+         * Проверяет есть ли следующий элемент в итераторе
+         * @return наличие следующего элемента в итераторе
+         */
         @Override
         public boolean hasNext() {
             return counter < length;
         }
 
+        /**
+         * Берет следующий элемент узла
+         * @return возвращает объект хранящийся в узле
+         */
         @Override
         public T next() {
             lastReturned = next;
@@ -366,18 +397,38 @@ public class LinkedList<T> implements Iterable<T> {
      */
     class ReversedLinkedListIterator implements Iterator<T> {
         LinkedListNode<T> lastReturned;
+
+        /**
+         * Узел хранящий текущий узел
+         */
         private LinkedListNode<T> next;
+
+        /**
+         * счётчик текущего элемента итератора
+         */
         private int counter = 0;
+
+        /**
+         * Конструктор итератора
+         */
         public ReversedLinkedListIterator() {
             this.next = last();
         }
 
 
+        /**
+         * Проверяет есть ли следующий элемент в итераторе
+         * @return наличие следующего элемента в итераторе
+         */
         @Override
         public boolean hasNext() {
             return counter < length;
         }
 
+        /**
+         * Берет следующий элемент узла
+         * @return возвращает объект хранящийся в узле
+         */
         @Override
         public T next() {
             lastReturned = next;
@@ -409,6 +460,10 @@ public class LinkedList<T> implements Iterable<T> {
         return length == that.length && Objects.equals(firstItem, that.firstItem);
     }
 
+    /**
+     * Возвращает первый элемент списка
+     * @return первый элемент списка
+     */
     public LinkedListNode<T> getFirstItem() {
         return firstItem;
     }

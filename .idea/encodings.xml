@@ -3,8 +3,9 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/library" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/library/Blvckholes (feat. CHERNOBURKV) - Почему (pochemu).mp3" charset="windows-1251" />
+    <file url="file://$PROJECT_DIR$/library/Death Grips - Get Got.mp3" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/library/music.mp3" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/library/playingtheangel - В неожиданном ракурсе.mp3" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/library/playingtheangel - В неожиданном ракурсе.mp3" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/library/playingtheangel - РОКОВАЯ ЖЕНЩИНА.mp3" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/library/playingtheangel, Adamant - Грустить в бентли.mp3" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/library/Найтивыход - спайси роллы.mp3" charset="windows-1251" />
@@ -16,5 +17,6 @@
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources/com/njves/demo/doca.fxml" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/java/com/njves/demo/list/ListTest.java" charset="UTF-8" />
   </component>
 </project>

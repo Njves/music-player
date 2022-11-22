@@ -11,6 +11,9 @@ import com.njves.demo.model.Track;
  * Представляет дочерний объект плейлиста основаный на кольцеом двусвзяанным списке
  */
 public class Playlist extends LinkedList<Track> {
+    /**
+     * Указатель на текущий элемент
+     */
     private LinkedListNode<Track> current;
 
     /**
@@ -40,21 +43,36 @@ public class Playlist extends LinkedList<Track> {
         return current;
     }
 
+    /**
+     * Получает следующий элемент узла и устанавливает указатель на следующей элемент
+     * @return следующая композиция
+     */
     public Track nextTrack() {
         current = current.getNextItem();
         return current.getData();
     }
 
+    /**
+     * Получает предыдущий узел плейлиста и устанавливает указатель на предыдущий элемент
+     * @return композиция предыдущего узла
+     */
     public Track previousTrack() {
         current = current.getPreviousItem();
         return current.getData();
     }
 
-
+    /**
+     * Возвращает текущую композицию, на которую установлен указатель
+     * @return текущая композиция
+     */
     public Track current() {
         return current.getData();
     }
 
+    /**
+     * Добавляет композицию в плейлист
+     * @param data добавляемый объект
+     */
     @Override
     public void append(Track data) {
         super.append(data);
@@ -63,6 +81,10 @@ public class Playlist extends LinkedList<Track> {
         }
     }
 
+    /**
+     * Строковое представление объекта
+     * @return строкове представление объекта
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
